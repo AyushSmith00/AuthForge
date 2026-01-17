@@ -22,11 +22,13 @@ export const login_user = async(req, res) => {
         if(!isMatch){
             return res.status(401).json({message: "Invalid credentials"});
         }
+        console.log("JWT_EXPIRES_IN:", process.env.JWT_EXPIRES_IN)
 
         const token = jwt.sign(
             {id: user._id},
             process.env.JWT_SECRET,
-            {expiresIn: process.env.JWT_EXPIRES_IN}
+            {expiresIn: process.env.JWT_EXPIRES_IN},
+            
         );
 
         res.status(200).json({
@@ -44,3 +46,11 @@ export const login_user = async(req, res) => {
         res.status(500).json({message: error.message});
     }
 }
+
+export const getUserprofile = async(req, res) => {
+    res.json({
+        _id: req.user._id,
+        name: req.user.name,
+        email: req.user.email,
+    });
+}  
