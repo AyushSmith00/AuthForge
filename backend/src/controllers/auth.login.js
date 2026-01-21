@@ -1,6 +1,6 @@
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import { generateAccessToken, generateRefreshToken } from "../utils/generateToken.js";
 
 export const login_user = async(req, res) => {
     try {
@@ -22,18 +22,17 @@ export const login_user = async(req, res) => {
         if(!isMatch){
             return res.status(401).json({message: "Invalid credentials"});
         }
-        console.log("JWT_EXPIRES_IN:", process.env.JWT_EXPIRES_IN)
 
-        const token = jwt.sign(
-            {id: user._id},
-            process.env.JWT_SECRET,
-            {expiresIn: process.env.JWT_EXPIRES_IN},
-            
-        );
+        const accessToken = generateAccessToken(user._id);
+        const refreshToken = generateRefreshToken(user._id);
+
+        user.refreshToken = refreshToken;
+        await user.save();
 
         res.status(200).json({
             message: "Login successfully",
-            token,
+            accessToken,
+            refreshToken,
             user: {
                 id: user._id,
                 email: user.email,
