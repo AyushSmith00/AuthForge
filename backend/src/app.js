@@ -4,6 +4,7 @@ import logger from "./middleware/auth.logger.js";
 import userRoutes from "./routes/user.routes.js";
 import { notFound, errorHandler } from "./middleware/auth.errormiddleware.js";
 import adminRoutes from "./routes/admin.routes.js"
+import { adminLimitter } from "./middleware/auth.ratelimitingmiddleware.js";
 
 const app = express();
 
@@ -13,7 +14,7 @@ app.use(logger);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/admin", adminRoutes);
+app.use("/api/admin",adminLimitter, adminRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
