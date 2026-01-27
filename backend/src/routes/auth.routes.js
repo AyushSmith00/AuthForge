@@ -1,9 +1,9 @@
 import express from "express";
 import {register_user} from "../controllers/auth.controllers.js";
-import {login_user} from "../controllers/auth.login.js";
+import {login_user} from "../controllers/login.controller.js";
 import protect from "../middleware/auth.middleware.js";
-import {logoutUser} from "../controllers/auth.logout.js";
-import { refresh_token } from "../controllers/auth.refreshcontroller.js";
+import {logoutUser} from "../controllers/logout.controllers.js";
+import { refresh_token } from "../controllers/refresh.controller.js";
 import { loginLimitter, refreshLimitter } from "../middleware/auth.ratelimitingmiddleware.js";
 
 const router = express.Router();
