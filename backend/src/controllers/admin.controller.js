@@ -1,18 +1,41 @@
 import User from "../models/User.js";
 
 export const getAllUsers = async(req, res) => {
-    try {
-        const users = await User.find().select("-password -refreshToken");
 
-        res.status(200).json({
-            count: users.length,
-            users
-        })
-        
-    } catch (error) {
-        res.status(500).json({
-            message: "failed to fetch users",
-            error: error.message
-        })
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    const safePage = page < 1 ? 1: page
+    const safeLimit = limit > 50 ? 50: limit
+
+    const skip = (safePage - 1) * safeLimit;
+
+    const filter = {};
+
+    if(req.query.role) {
+        filter.role = req.query.role;
     }
+
+    if(req.query.keyword) {
+        filter.$or = [
+            { name: { $regex: req.query.keyword, $options: "i" } },
+            { email: { $regex: req.query.keyword, $options: "i" } },
+        ]
+    }
+
+    const users = await User.find(filter)
+    .select("-password -refreshToken")
+    .sort({ createdAt: -1})
+    .skip(skip)
+    .limit(safeLimit)
+
+    const totalUsers = await User.countDocuments(filter);
+    
+    res.status(200).json({
+        page: safePage,
+        limit: safeLimit,
+        totalUsers,
+        totalPages: Math.ceil(totalUsers/ safeLimit),
+        users
+    })
 }
